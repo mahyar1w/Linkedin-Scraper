@@ -7,19 +7,35 @@ import time
 service = Service(executable_path='/usr/bin/chromedriver')
 driver = webdriver.Chrome(service=service)
 
+driver.get("https://www.linkedin.com/login")
 
-EMAIL = "ma1285moh@gmail.com"
-PASSWORD = "mahyar12"
+time.sleep(2)
 
+username = driver.find_element(By.ID, "username")
+username.send_keys("ma1285moh@gmail.com")
+
+password = driver.find_element(By.ID, "password")
+password.send_keys("mahyar12")
+
+driver.find_element(By.XPATH, "//button[@type='submit']").click()
+
+time.sleep(5)
 
 try:
-    driver.get("https://www.linkedin.com/login")
-    time.sleep(2)
+    search_box = driver.find_element(By.XPATH, '//*[@id="global-nav-typeahead"]/input')
+    search_box.click()
+except:
+    driver.find_element(By.XPATH, '//*[@id="global-nav-search"]/div/button').click()
+    search_box = driver.find_element(By.XPATH, '//*[@id="global-nav-typeahead"]/input')
+    search_box.click()
+    
+search_box.send_keys("Python Developer")
+search_box.send_keys(Keys.RETURN)
 
-    driver.find_element(By.ID, "username").send_keys(EMAIL)
-    driver.find_element(By.ID, "password").send_keys(PASSWORD)
-    driver.find_element(By.XPATH, '//button[@type="submit"]').click()
-    time.sleep(5)
+time.sleep(5)
 
-finally:
-    driver.quit()
+profiles = driver.find_elements(By.XPATH, "//span[@dir='ltr']/span[@aria-hidden='true']")
+for profile in profiles:
+    print(profile.text)
+
+driver.quit()
