@@ -1,7 +1,7 @@
 from database import JobDatabase
 from  datacollector import LinkedInJobScraper
 
-scraper = LinkedInJobScraper("ma1285moh@gmail.com", "mahyar12")
+scraper = LinkedInJobScraper("username", "password")
 scraper.login()
 scraper.search_jobs("data scientist", "united states", 20)
 jobs = scraper.scrape_jobs()
