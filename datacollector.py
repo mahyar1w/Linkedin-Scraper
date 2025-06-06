@@ -2,10 +2,16 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+import os
 import time
 
-service = Service(executable_path='/usr/bin/chromedriver')
-driver = webdriver.Chrome(service=service)
+if os.name == "posix":
+    service = Service(executable_path='/usr/bin/chromedriver')
+    driver = webdriver.Chrome(service=service)
+elif os.name == "nt":
+    driver = webdriver.Chrome()
+
+
 
 class LinkedInJobScraper:
     def __init__(self, username, password):
