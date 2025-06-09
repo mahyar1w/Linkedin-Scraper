@@ -1,8 +1,12 @@
 import sqlite3
-
+import os
 class JobDatabase:
     def __init__(self, db_name="jobs.db"):
         self.db_name = db_name
+        
+        if os.path.exists(self.db_name):
+            os.remove(self.db_name)
+
         self._create_table()
 
     def _create_table(self):
