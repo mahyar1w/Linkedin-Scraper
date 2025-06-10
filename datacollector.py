@@ -50,29 +50,40 @@ class LinkedInJobScraper:
         country_search_bar.send_keys(country + Keys.ENTER)
         time.sleep(4)
 
-        jobs_window = self.driver.find_element(By.CSS_SELECTOR, "#main > div > div.scaffold-layout__list-detail-inner.scaffold-layout__list-detail-inner--grow > div.scaffold-layout__list > div")
-        scrolled_jobs = 0
-        while scrolled_jobs < num_jobs:
-            self.driver.execute_script("arguments[0].scrollBy(0, 500);", jobs_window)
-            scrolled_jobs += 1
-            time.sleep(0.6)
-
+        self.jobs_window = self.driver.find_element(By.CSS_SELECTOR, "#main > div > div.scaffold-layout__list-detail-inner.scaffold-layout__list-detail-inner--grow > div.scaffold-layout__list > div")
     def scrape_jobs(self):
-        jobs = self.driver.find_elements(By.CLASS_NAME, "artdeco-entity-lockup__title")
-        companies = self.driver.find_elements(By.CLASS_NAME, "artdeco-entity-lockup__subtitle")
-        locations = self.driver.find_elements(By.CLASS_NAME, "artdeco-entity-lockup__caption")
-        links = self.driver.find_elements(By.CLASS_NAME, "job-card-container__link")
-
         job_data = []
-        for job, company, location, link in zip(jobs, companies, locations, links):
-            if len(job_data) < self.num_jobs:
-                job_data.append({
-                    "title": job.text,
-                    "company": company.text,
-                    "location": location.text,
-                    "link": link.get_attribute("href")
-                })
-            else:
+        scraped_job_links = set()
+        while len(job_data) < self.num_jobs:
+            for _ in range(25):
+                self.driver.execute_script("arguments[0].scrollBy(0, 500);", self.jobs_window)
+                time.sleep(0.6)
+
+            jobs = self.driver.find_elements(By.CLASS_NAME, "artdeco-entity-lockup__title")
+            companies = self.driver.find_elements(By.CLASS_NAME, "artdeco-entity-lockup__subtitle")
+            locations = self.driver.find_elements(By.CLASS_NAME, "artdeco-entity-lockup__caption")
+            links = self.driver.find_elements(By.CLASS_NAME, "job-card-container__link")
+
+            
+            for job, company, location, link in zip(jobs, companies, locations, links):
+                scraped_job_link = link.get_attribute("href")
+                if len(job_data) < self.num_jobs :
+                    if scraped_job_link not in scraped_job_links:
+                        job_data.append({
+                            "title": job.text,
+                            "company": company.text,
+                            "location": location.text,
+                            "link": scraped_job_link
+                    })
+                    scraped_job_links.add(scraped_job_link)
+                else:
+                    break
+
+            try:
+                self.driver.find_element(By.CSS_SELECTOR,"""button[aria-label="View next page"]""").click()
+                time.sleep(3)
+            except:
+                print("no more pages.")
                 break
 
         return job_data
